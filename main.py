@@ -14,7 +14,7 @@ OKDESK_API_KEY = "3a1d97301daf31b4e25a9dc37944fb3a1c56c0fd"
 def webhook():
     try:
         data = request.json
-	print("Получен JSON от формы:", data)  # временный вывод в логи
+    print("Получен JSON от формы:", data)  # временный вывод в логи
 
         # Заголовок заявки
         subject = "Заявка из Формы"
