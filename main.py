@@ -5,7 +5,7 @@ import os
 app = Flask(__name__)
 
 # URL и API-ключ Okdesk
-OKDESK_URL = "https://samoilenko.okdesk.ru/api/v1/issues"
+OKDESK_URL = "https://samoilenko.okdesk.ru/api/v1/issues?api_token=3a1d97301daf31b4e25a9dc37944fb3a1c56c0fd"
 OKDESK_API_KEY = "3a1d97301daf31b4e25a9dc37944fb3a1c56c0fd"
 
 @app.route("/webhook", methods=["POST"])
