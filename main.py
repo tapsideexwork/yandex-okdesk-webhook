@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 import requests
 import os
 
@@ -13,43 +13,51 @@ def webhook():
     try:
         # Получаем JSON с формы
         data = request.json
-        print("Получен JSON от формы:", data, flush=True)  # вывод в лог Render
+        if not data:
+            return jsonify({"status": "error", "message": "Нет JSON в запросе"}), 400
+
+        print("Получен JSON от формы:", data, flush=True)  # логирование в Render
 
         # Тема заявки
         subject = "Заявка из Формы"
 
-        # Все данные формы помещаем в описание заявки
+        # Формируем описание заявки (все данные формы)
         description = "Получены данные из Яндекс.Формы:\n\n"
         for key, value in data.items():
             description += f"{key}: {value}\n"
 
-        # Формируем payload для Okdesk
+        # Payload для Okdesk
         payload = {
             "issue": {
                 "subject": subject,
                 "description": description,
                 "client": {
-                    "name": data.get("org_name", "Не указано"),
-                    "inn": data.get("org_inn", "Не указано")
+                    "name": str(data.get("org_name", "Не указано")),
+                    "inn": str(data.get("org_inn", "Не указано"))
                 }
             }
         }
 
-        # Заголовки для запроса
         headers = {
-            "X-API-KEY": OKDESK_API_KEY,
+            "X-API-KEY": str(OKDESK_API_KEY),
             "Content-Type": "application/json"
         }
 
-        # Отправляем заявку в Okdesk
+        # Отправка заявки в Okdesk
         response = requests.post(OKDESK_URL, json=payload, headers=headers)
-        response.raise_for_status()  # выбросит исключение при ошибке HTTP
+        print("Ответ Okdesk:", response.text, flush=True)  # логируем полный ответ
+        response.raise_for_status()  # выброс исключения при HTTP ошибке
 
-        return {"status": "ok", "okdesk_response": response.json()}
+        # Вернуть ID созданной заявки и статус
+        okdesk_id = response.json().get("id")
+        return jsonify({"status": "ok", "okdesk_id": okdesk_id})
 
+    except requests.exceptions.HTTPError as http_err:
+        print("HTTP ошибка при отправке в Okdesk:", http_err, flush=True)
+        return jsonify({"status": "error", "message": str(http_err), "response": response.text}), 500
     except Exception as e:
         print("Ошибка при обработке webhook:", e, flush=True)
-        return {"status": "error", "message": str(e)}, 500
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 
 if __name__ == "__main__":
