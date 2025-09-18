@@ -4,9 +4,9 @@ import os
 
 app = Flask(__name__)
 
-# Адрес API Okdesk
+# РђРґСЂРµСЃ API Okdesk
 OKDESK_URL = "https://samoilenko.okdesk.ru/api/v1/issues"
-# Твой API-ключ Okdesk (замени на реальный)
+# РўРІРѕР№ API-РєР»СЋС‡ Okdesk (Р·Р°РјРµРЅРё РЅР° СЂРµР°Р»СЊРЅС‹Р№)
 OKDESK_API_KEY = "3a1d97301daf31b4e25a9dc37944fb3a1c56c0fd"
 
 
@@ -14,28 +14,29 @@ OKDESK_API_KEY = "3a1d97301daf31b4e25a9dc37944fb3a1c56c0fd"
 def webhook():
     try:
         data = request.json
+	print("РџРѕР»СѓС‡РµРЅ JSON РѕС‚ С„РѕСЂРјС‹:", data)  # РІСЂРµРјРµРЅРЅС‹Р№ РІС‹РІРѕРґ РІ Р»РѕРіРё
 
-        # Заголовок заявки
-        subject = "Заявка из Формы"
+        # Р—Р°РіРѕР»РѕРІРѕРє Р·Р°СЏРІРєРё
+        subject = "Р—Р°СЏРІРєР° РёР· Р¤РѕСЂРјС‹"
 
-        # Собираем комментарий из всех полей формы
-        description = "Получены данные из Яндекс.Формы:\n\n"
+        # РЎРѕР±РёСЂР°РµРј РєРѕРјРјРµРЅС‚Р°СЂРёР№ РёР· РІСЃРµС… РїРѕР»РµР№ С„РѕСЂРјС‹
+        description = "РџРѕР»СѓС‡РµРЅС‹ РґР°РЅРЅС‹Рµ РёР· РЇРЅРґРµРєСЃ.Р¤РѕСЂРјС‹:\n\n"
         for key, value in data.items():
             description += f"{key}: {value}\n"
 
-        # Формируем payload для Okdesk
+        # Р¤РѕСЂРјРёСЂСѓРµРј payload РґР»СЏ Okdesk
         payload = {
             "issue": {
                 "subject": subject,
                 "description": description,
                 "client": {
-                    "name": data.get("org_name", "Не указано"),
-                    "inn": data.get("org_inn", "Не указано")
+                    "name": data.get("org_name", "РќРµ СѓРєР°Р·Р°РЅРѕ"),
+                    "inn": data.get("org_inn", "РќРµ СѓРєР°Р·Р°РЅРѕ")
                 }
             }
         }
 
-        # Заголовки для Okdesk API
+        # Р—Р°РіРѕР»РѕРІРєРё РґР»СЏ Okdesk API
         headers = {
             "X-API-KEY": OKDESK_API_KEY,
             "Content-Type": "application/json"
